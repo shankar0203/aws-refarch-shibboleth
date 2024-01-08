@@ -274,7 +274,7 @@ Resources:
   Service:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://${TemplateBucket}.s3.amazonaws.com/${TemplateFolder}templates/service.yaml"
+      TemplateURL: !Sub "https://shibboleth-bucket.s3.us-east-2.amazonaws.com/template/service.yaml"
       Parameters:
         Name: !Ref AWS::StackName
         Cluster: !GetAtt Cluster.Outputs.ClusterName
