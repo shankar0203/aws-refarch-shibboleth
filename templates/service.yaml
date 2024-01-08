@@ -1,6 +1,4 @@
----
 AWSTemplateFormatVersion: 2010-09-09
-
 
 Parameters:
   Name:
@@ -35,19 +33,22 @@ Parameters:
   SealerKeyArn:
     Type: String
 
-
 Conditions:
   Fargate: !Equals [ !Ref LaunchType, "Fargate" ]
-
   EC2: !Equals [ !Ref LaunchType, "EC2" ]
 
-
 Resources:
-  EcsServiceLinkedRole:
-    Type: "AWS::IAM::ServiceLinkedRole"
+  MyEcsServiceLinkedRole:
+    Type: "AWS::IAM::Role"
     Properties:
-      AWSServiceName: "ecs.amazonaws.com"
-      Description: "Role to enable Amazon ECS to manage your cluster."
+      RoleName: "MyEcsServiceLinkedRole" # Renamed the service-linked role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: "sts:AssumeRole"
+            Effect: Allow
+            Principal:
+              Service: "ecs.amazonaws.com"
 
   TaskRole:
     Type: AWS::IAM::Role
@@ -56,19 +57,17 @@ Resources:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
-          - Action: sts:AssumeRole
+          - Action: "sts:AssumeRole"
             Effect: Allow
             Principal:
-              Service: ecs-tasks.amazonaws.com
-      Policies: 
-        - 
-          PolicyName: "GetSealerKeySecret"
-          PolicyDocument: 
+              Service: "ecs-tasks.amazonaws.com"
+      Policies:
+        - PolicyName: "GetSealerKeySecret"
+          PolicyDocument:
             Version: "2012-10-17"
-            Statement: 
-              - 
-                Effect: "Allow"
-                Action: 
+            Statement:
+              - Effect: "Allow"
+                Action:
                   - "secretsmanager:GetResourcePolicy"
                   - "secretsmanager:GetSecretValue"
                   - "secretsmanager:DescribeSecret"
@@ -82,17 +81,17 @@ Resources:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
-          - Action: sts:AssumeRole
+          - Action: "sts:AssumeRole"
             Effect: Allow
             Principal:
-              Service: ecs-tasks.amazonaws.com
+              Service: "ecs-tasks.amazonaws.com"
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 
   LogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub /ecs/${Name}
+      LogGroupName: !Sub "/ecs/${Name}"
 
   FargateService:
     Type: AWS::ECS::Service
@@ -131,7 +130,7 @@ Resources:
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: !Sub shibboleth-idp-${Name}
+      Family: !Sub "shibboleth-idp-${Name}"
       RequiresCompatibilities:
         - !If [ Fargate, "FARGATE", "EC2" ]
       Memory: !If [ Fargate, 4096, 3884 ]
@@ -155,7 +154,6 @@ Resources:
               awslogs-region: !Ref AWS::Region
               awslogs-group: !Ref LogGroup
               awslogs-stream-prefix: !Ref Name
-
 
 Outputs:
   Service:
