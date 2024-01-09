@@ -32,7 +32,7 @@ Parameters:
 
   TemplateBucket:
     Type: String
-    Default: aws-shibboleth-reference-architecture
+    Default: aws-refarch-shibboleth-us-east-1
     Description: >
       The S3 bucket from which to fetch the templates used by this stack.
       We recommend that you store your CloudFormation templates in your own S3 bucket
@@ -207,7 +207,7 @@ Resources:
   Secrets:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://${TemplateBucket}.s3.amazonaws.com/${TemplateFolder}templates/secrets.yml"
+      TemplateURL: !Sub "https://shibboleth-bucket.s3.us-east-2.amazonaws.com/template/secrets.yml"
       Parameters:
         Name: !Ref AWS::StackName
         LambdaBucket: !Ref TemplateBucket
@@ -221,7 +221,7 @@ Resources:
   Cluster:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://${TemplateBucket}.s3.amazonaws.com/${TemplateFolder}templates/ecs-cluster.yaml"
+      TemplateURL: !Sub "https://shibboleth-bucket.s3.us-east-2.amazonaws.com/template/ecs-cluster.yaml"
       Parameters:
         Name: !Ref AWS::StackName
         LaunchType: !Ref LaunchType
@@ -232,7 +232,7 @@ Resources:
   DeploymentPipeline:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://${TemplateBucket}.s3.amazonaws.com/${TemplateFolder}templates/deployment-pipeline.yaml"
+      TemplateURL: !Sub "https://shibboleth-bucket.s3.us-east-2.amazonaws.com/template/deployment-pipeline.yaml"
       Parameters:
         Name: !Ref AWS::StackName
         Cluster: !GetAtt Cluster.Outputs.ClusterName
@@ -251,7 +251,7 @@ Resources:
   LoadBalancer:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://${TemplateBucket}.s3.amazonaws.com/${TemplateFolder}templates/load-balancer.yaml"
+      TemplateURL: !Sub "https://shibboleth-bucket.s3.us-east-2.amazonaws.com/template/load-balancer.yaml"
       Parameters:
         LaunchType: !Ref LaunchType
         Subnets: !GetAtt VPC.Outputs.Subnets
@@ -262,7 +262,7 @@ Resources:
   VPC:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://${TemplateBucket}.s3.amazonaws.com/${TemplateFolder}templates/vpc.yaml"
+      TemplateURL: !Sub "https://shibboleth-bucket.s3.us-east-2.amazonaws.com/template/vpc.yaml"
       Parameters:
         Name: !Ref AWS::StackName
         VpcCIDR: !Ref VpcCIDR
@@ -274,7 +274,7 @@ Resources:
   Service:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://${TemplateBucket}.s3.amazonaws.com/${TemplateFolder}templates/service.yaml"
+      TemplateURL: !Sub "https://shibboleth-bucket.s3.us-east-2.amazonaws.com/template/service.yaml"
       Parameters:
         Name: !Ref AWS::StackName
         Cluster: !GetAtt Cluster.Outputs.ClusterName
